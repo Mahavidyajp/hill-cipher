@@ -1,4 +1,4 @@
-# hill-cipher
+# Hill-cipher
 Hill Cipher using with different key values
 
 ## AIM:
