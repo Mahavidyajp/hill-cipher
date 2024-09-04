@@ -18,64 +18,102 @@ Testing algorithm with different key values. ALGORITHM DESCRIPTION: The Hill cip
 ```
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
+#include <ctype.h>
+
+int keymat[3][3] = { { 1, 2, 1 }, { 2, 3, 2 }, { 2, 2, 1 } };
+int invkeymat[3][3] = { { -1, 0, 1 }, { 2, -1, 0 }, { -2, 2, -1 } };
+char key[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Function to encode a triplet of characters
+void encode(char a, char b, char c, char ret[]) {
+    int x, y, z;
+    int posa = (int)a - 65;
+    int posb = (int)b - 65;
+    int posc = (int)c - 65;
+
+    x = posa * keymat[0][0] + posb * keymat[1][0] + posc * keymat[2][0];
+    y = posa * keymat[0][1] + posb * keymat[1][1] + posc * keymat[2][1];
+    z = posa * keymat[0][2] + posb * keymat[1][2] + posc * keymat[2][2];
+
+    ret[0] = key[x % 26];
+    ret[1] = key[y % 26];
+    ret[2] = key[z % 26];
+    ret[3] = '\0';
+}
+
+// Function to decode a triplet of characters
+void decode(char a, char b, char c, char ret[]) {
+    int x, y, z;
+    int posa = (int)a - 65;
+    int posb = (int)b - 65;
+    int posc = (int)c - 65;
+
+    x = posa * invkeymat[0][0] + posb * invkeymat[1][0] + posc * invkeymat[2][0];
+    y = posa * invkeymat[0][1] + posb * invkeymat[1][1] + posc * invkeymat[2][1];
+    z = posa * invkeymat[0][2] + posb * invkeymat[1][2] + posc * invkeymat[2][2];
+
+    ret[0] = key[(x % 26 < 0) ? (26 + x % 26) : (x % 26)];
+    ret[1] = key[(y % 26 < 0) ? (26 + y % 26) : (y % 26)];
+    ret[2] = key[(z % 26 < 0) ? (26 + z % 26) : (z % 26)];
+    ret[3] = '\0';
+}
 
 int main() {
-    int i, j, len, rails, count;
-    char str[1000];
-    int code[100][1000]; 
+    char msg[1000];
+    char enc[1000] = "";
+    char dec[1000] = "";
+    int n;
 
-    printf("Enter a Secret Message: ");
-    fgets(str, sizeof(str), stdin);  
-    str[strcspn(str, "\n")] = '\0'; 
+    strcpy(msg, "PREETHI");
+    printf("Input message : %s\n", msg);
 
-    len = strlen(str);
+    // Convert the input message to uppercase
+    for (int i = 0; i < strlen(msg); i++) {
+        msg[i] = toupper(msg[i]);
+    }
 
-    printf("Enter number of rails: ");
-    scanf("%d", &rails);
+    // Remove spaces
+    n = strlen(msg) % 3;
 
-    for (i = 0; i < rails; i++) {
-        for (j = 0; j < len; j++) {
-            code[i][j] = 0;
+    // Append padding text 'X' if necessary
+    if (n != 0) {
+        for (int i = 1; i <= (3 - n); i++) {
+            strcat(msg, "X");
         }
     }
 
-    count = 0;  
-    j = 0;      
+    printf("Padded message : %s\n", msg);
 
-    while (j < len) {
-        if (count % 2 == 0) {
-            for (i = 0; i < rails && j < len; i++) {
-                code[i][j] = (int)str[j]; 
-                j++;
-            }
-        } else {
-            for (i = rails - 2; i > 0 && j < len; i--) {
-                code[i][j] = (int)str[j]; 
-                j++;
-            }
-        }
-        count++;
+    // Encode the message
+    for (int i = 0; i < strlen(msg); i += 3) {
+        char a = msg[i];
+        char b = msg[i + 1];
+        char c = msg[i + 2];
+        char encoded[4];
+        encode(a, b, c, encoded);
+        strcat(enc, encoded);
     }
 
- 
-    printf("\nEncrypted Message: ");
-    for (i = 0; i < rails; i++) {
-        for (j = 0; j < len; j++) {
-            if (code[i][j] != 0) {
-                printf("%c", code[i][j]);
-            }
-        }
-    }
-    printf("\n");
+    printf("Encoded message : %s\n", enc);
 
+    // Decode the message
+    for (int i = 0; i < strlen(enc); i += 3) {
+        char a = enc[i];
+        char b = enc[i + 1];
+        char c = enc[i + 2];
+        char decoded[4];
+        decode(a, b, c, decoded);
+        strcat(dec, decoded);
+    }
+
+    printf("Decoded message : %s\n", dec);
     return 0;
 }
 ```
 
 ## OUTPUT:
 
-![Screenshot 2024-09-04 141707](https://github.com/user-attachments/assets/7b68408f-7d71-4100-ad26-4dfb13137ee5)
+![Screenshot 2024-09-04 140259](https://github.com/user-attachments/assets/1f24205b-ad4f-4e90-b25a-c2a98f8d80a3)
 
 ## RESULT:
 The program is executed successfully
